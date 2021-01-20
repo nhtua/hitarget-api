@@ -8,6 +8,9 @@ authors = ["tuanh <hoangtua.vn@gmail.com>"]
 python = "^3.6"
 fastapi = "^0.63.0"
 uvicorn = "^0.13.2"
+motor = "^2.3.0"
+bcrypt = "^3.2.0"
+passlib = "^1.7.4"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.1"

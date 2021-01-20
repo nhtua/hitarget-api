@@ -12,4 +12,5 @@ def test_create_user(client: TestClient):
     assert response.status_code == 201
     r_user = response.json()
     assert r_user['email'] == user_data['email']
-    assert r_user['password'] == user_data['password']
+    assert 'password' not in r_user
+    assert r_user['name'] == None
