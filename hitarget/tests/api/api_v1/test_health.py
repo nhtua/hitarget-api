@@ -4,6 +4,6 @@ from hitarget.core.config import settings
 
 
 def test_health_check(client: TestClient):
-    response = client.get(f"{settings.API_V1_STR}/health")
+    response = client.get(f"{settings.API_V1_PREFIX}/health")
     assert response.status_code == 200
     assert response.json() == dict(health="OK")
