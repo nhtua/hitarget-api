@@ -23,5 +23,6 @@ class ResponseUser(BaseModel):
 
     class Config:
         json_encoders = {
-            ObjectId: lambda v: str(v), #TODO why does init() set id an ObjectId, not PyObjectId?
+            # The workaround's https://github.com/tiangolo/fastapi/issues/1515
+            ObjectId: lambda v: str(v),
         }

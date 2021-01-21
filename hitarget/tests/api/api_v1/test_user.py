@@ -9,8 +9,10 @@ def test_create_user(client: TestClient):
         password="password",
     )
     response = client.post(f"{settings.API_V1_PREFIX}/users", json=user_data)
-    assert response.status_code == 201
     r_user = response.json()
-    assert r_user['email'] == user_data['email']
+
+    assert response.status_code == 201
     assert 'password' not in r_user
-    assert r_user['name'] == None
+    assert 'id' in r_user
+    assert r_user['email'] == user_data['email']
+    assert r_user['name'] is None
