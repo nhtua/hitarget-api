@@ -6,6 +6,7 @@ from httpx import AsyncClient
 
 from hitarget.core.config import settings
 from hitarget.core.mongodb import AsyncIOMotorDatabase
+from hitarget.core import security
 
 
 @pytest.fixture(scope="module")
@@ -47,3 +48,11 @@ async def user_data() -> Dict:
         email="someone@email.com",
         password="password",
     )
+
+
+@pytest.fixture
+async def user_in_db(user_data: None, mongodb: AsyncIOMotorDatabase) -> Dict:
+    user_data['name'] = 'Ariel'
+    user_data['salt'] = security.generate_salt()
+    user_data['password'] = security.get_password_hash(user_data['salt'] + user_data['password'])
+    await mongodb.users.insert_one(user_data)

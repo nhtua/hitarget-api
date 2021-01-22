@@ -27,3 +27,8 @@ class UserInDB(User):
 
     class Config:
         allow_population_by_field_name = True
+
+
+class FormLogin(BaseModel):
+    email: str = Field(...)
+    password: str = Field(...)
