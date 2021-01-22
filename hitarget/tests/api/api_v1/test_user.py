@@ -11,7 +11,7 @@ pytestmark = pytest.mark.asyncio
 
 
 async def test_create_user(user_data: Dict, client: AsyncClient, mongodb: AsyncIOMotorDatabase):
-    response = await client.post(f"{settings.API_V1_PREFIX}/users", json=user_data)
+    response = await client.post(f"{settings.API_V1_PREFIX}/register", json=user_data)
     r_user = response.json()
     col = mongodb[User.__collection__]
     u = await col.find_one({"_id": ObjectId(r_user["id"])})
