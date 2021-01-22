@@ -6,7 +6,7 @@ from hitarget.models.user import User, ResponseUser
 from hitarget.core.mongodb import AsyncIOMotorDatabase, get_database
 from hitarget.business.user import create_user
 
-router = APIRouter()
+router = APIRouter(prefix='/users')
 
 
 @router.post("/register", response_description="Register a new user account")
