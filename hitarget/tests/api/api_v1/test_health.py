@@ -1,9 +1,12 @@
-from fastapi.testclient import TestClient
+import pytest
 
 from hitarget.core.config import settings
+from hitarget.tests.conftest import AsyncClient
+
+pytestmark = pytest.mark.asyncio
 
 
-def test_health_check(client: TestClient):
-    response = client.get(f"{settings.API_V1_PREFIX}/health")
+async def test_health_check(client: AsyncClient):
+    response = await client.get(f"{settings.API_V1_PREFIX}/health")
     assert response.status_code == 200
     assert response.json() == dict(health="OK")
