@@ -1,4 +1,5 @@
 import pytest
+from typing import Dict
 from asgi_lifespan import LifespanManager
 from fastapi import FastAPI
 from httpx import AsyncClient
@@ -38,3 +39,11 @@ async def client(initialized_app: FastAPI) -> AsyncClient:
         headers={"Content-Type": "application/json"},
     ) as client:
         yield client
+
+
+@pytest.fixture
+async def user_data() -> Dict:
+    return dict(
+        email="someone@email.com",
+        password="password",
+    )
