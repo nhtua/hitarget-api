@@ -55,9 +55,10 @@ async def user_data() -> Dict:
 
 @pytest.fixture
 async def user_in_db(user_data: Dict, mongodb: AsyncIOMotorDatabase) -> UserInDB:
-    user_data['salt'] = security.generate_salt()
-    user_data['password'] = security.get_password_hash(user_data['salt'] + user_data['password'])
-    result = await mongodb.users.insert_one(user_data)
+    data = user_data.copy()
+    data['salt'] = security.generate_salt()
+    data['password'] = security.get_password_hash(data['salt'] + data['password'])
+    result = await mongodb.users.insert_one(data)
     result = await  mongodb.users.find_one({"_id": result.inserted_id})
     return UserInDB(**result)
 

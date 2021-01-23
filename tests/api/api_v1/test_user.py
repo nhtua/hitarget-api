@@ -3,14 +3,12 @@ from typing import Dict
 from bson import ObjectId
 
 from hitarget.core.config import settings
-from hitarget.core.mongodb import AsyncIOMotorDatabase
-from hitarget.models.user import User
-from tests.conftest import AsyncClient
+from hitarget.models.user import User, FormLogin
 
 pytestmark = pytest.mark.asyncio
 
 
-async def test_create_user(user_data: Dict, client: AsyncClient, mongodb: AsyncIOMotorDatabase):
+async def test_create_user(user_data, client, mongodb):
     response = await client.post(f"{settings.API_V1_PREFIX}/users/register", json=user_data)
     r_user = response.json()
     col = mongodb[User.__collection__]
@@ -24,7 +22,7 @@ async def test_create_user(user_data: Dict, client: AsyncClient, mongodb: AsyncI
     assert r_user['name']  == user_data['name']
 
 
-async def test_user_in_db(user_data: Dict, mongodb: AsyncIOMotorDatabase):
+async def test_user_in_db(user_data, mongodb):
     # BE CAREFUL with the test order.
     # Database won't be clear until `reset_db` been invoked
     col = mongodb[User.__collection__]
@@ -32,7 +30,17 @@ async def test_user_in_db(user_data: Dict, mongodb: AsyncIOMotorDatabase):
     assert u is not None
 
 
-async def test_reset_db(mongodb: AsyncIOMotorDatabase, reset_db: None):
+async def test_reset_db(mongodb, reset_db):
     collection = mongodb[User.__collection__]
     u = await collection.find_one({"email": "someone@email.com"})
     assert u is None
+
+
+async def test_login(client, user_data, user_in_db):
+    form = FormLogin(**user_data)
+    response = await client.post(f"{settings.API_V1_PREFIX}/users/login", json=form.dict())
+    assert response.status_code == 200
+    response = response.json()
+    assert response['email'] == user_in_db.email
+    assert response['name']  == user_in_db.name
+    assert response['token'] != ""

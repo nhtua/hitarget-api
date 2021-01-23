@@ -31,7 +31,7 @@ async def login(form: FormLogin,
         detail=strings.INCORRECT_LOGIN_INPUT,
     )
     try:
-        u = await user_bus.find_user_by(email=form.email)
+        u = await user_bus.find_user_by(db, email=form.email)
     except EntityDoesNotExist as error:
         raise wrong_login_error from error
 
