@@ -3,7 +3,7 @@ from starlette.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_400_BAD_REQUEST
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 
-from hitarget.models.user import UserInDB, UserInResponse, FormLogin,FormRegister
+from hitarget.models.user import UserInDB, UserInResponse, FormLogin, FormRegister
 from hitarget.core.mongodb import AsyncIOMotorDatabase, get_database
 from hitarget.core.errors import EntityDoesNotExist
 from hitarget.business import user as user_bus

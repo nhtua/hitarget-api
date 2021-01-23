@@ -11,9 +11,9 @@ class DBEngine:
 dbe = DBEngine()
 
 
-async def get_database(db_name: str = None) -> AsyncIOMotorDatabase:
-    return dbe.client.get_default_database(settings.MONGODB_NAME
-                                           if db_name is None else db_name)
+# Endpoint dependency should not have params to avoid it showing up in document
+async def get_database() -> AsyncIOMotorDatabase:
+    return dbe.client.get_default_database(settings.MONGODB_NAME)
 
 
 async def connect():

@@ -1,5 +1,3 @@
-from bson import ObjectId
-
 from hitarget.core import security
 from hitarget.core.errors import EntityDoesNotExist
 from hitarget.core.mongodb import AsyncIOMotorDatabase
