@@ -10,7 +10,7 @@ from hitarget.business import user as user_bus
 from hitarget.resources import strings
 from hitarget.services import jwt
 
-router = APIRouter(prefix='/users')
+router = APIRouter(prefix='/users', tags=["Authentication"])
 
 
 @router.post("/register", response_description="Register a new user account")
