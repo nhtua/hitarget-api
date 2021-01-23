@@ -21,7 +21,7 @@ async def test_create_user(user_data: Dict, client: AsyncClient, mongodb: AsyncI
     assert 'id' in r_user
     assert u is not None
     assert r_user['email'] == user_data['email'] == u['email']
-    assert r_user['name'] is None
+    assert r_user['name']  == user_data['name']
 
 
 async def test_user_in_db(user_data: Dict, mongodb: AsyncIOMotorDatabase):
