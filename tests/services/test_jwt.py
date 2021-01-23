@@ -32,3 +32,8 @@ async def test_get_email_from_token(user_in_response):
     email = get_email_from_token(real_token)
 
     assert email == user_in_response.email
+
+
+def test_error_when_wrong_token() -> None:
+    with pytest.raises(ValueError):
+        get_email_from_token("asdf")
