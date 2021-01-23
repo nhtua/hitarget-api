@@ -34,8 +34,8 @@ async def login(form: FormLogin,
         u = await user_bus.find_user_by(db, email=form.email)
     except EntityDoesNotExist as error:
         raise wrong_login_error from error
-
-    if not security.verify_password(form.password, u.password):
+    u = UserInDB(**u)
+    if not u.check_password(form.password):
         raise wrong_login_error
 
     response = UserInResponse(**u.dict())

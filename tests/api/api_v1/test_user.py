@@ -1,5 +1,4 @@
 import pytest
-from typing import Dict
 from bson import ObjectId
 
 from hitarget.core.config import settings
@@ -44,3 +43,5 @@ async def test_login(client, user_data, user_in_db):
     assert response['email'] == user_in_db.email
     assert response['name']  == user_in_db.name
     assert response['token'] != ""
+    assert "password" not in response
+    assert "salt"     not in response

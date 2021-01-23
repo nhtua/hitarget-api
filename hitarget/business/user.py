@@ -17,7 +17,7 @@ async def create_user(db: AsyncIOMotorDatabase, user: User):
 
 async def find_user_by(db: AsyncIOMotorDatabase, id: str = None, email: str = None):
     filter = {}
-    filter["_id"] = None if id is None else ObjectId(id)
+    # filter["_id"] = None if id is None else ObjectId(id)
     filter["email"] = None if email is None else email
 
     result = await db[User.__collection__].find_one(filter)
