@@ -10,6 +10,10 @@ class Settings(BaseSettings):
     MONGODB_MAX_POOL_SIZE = 10
     MONGODB_MIN_POOL_SIZE = 1
 
+    JWT_ISSUER: str = "hiTargetV1"
+    JWT_ALGORITHM: str = "HS256"
+    JWT_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # one week
+
     class Config:
         case_sensitive = True
 

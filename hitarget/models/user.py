@@ -12,6 +12,7 @@ class User(BaseModel):
 
 class UserInResponse(User):
     id: Optional[PyObjectId]
+    token: Optional[str]
 
     class Config:
         json_encoders = {
