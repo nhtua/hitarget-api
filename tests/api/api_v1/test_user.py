@@ -5,7 +5,7 @@ from bson import ObjectId
 from hitarget.core.config import settings
 from hitarget.core.mongodb import AsyncIOMotorDatabase
 from hitarget.models.user import User
-from hitarget.tests.conftest import AsyncClient
+from tests.conftest import AsyncClient
 
 pytestmark = pytest.mark.asyncio
 

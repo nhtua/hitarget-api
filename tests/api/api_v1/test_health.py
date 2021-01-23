@@ -1,7 +1,7 @@
 import pytest
 
 from hitarget.core.config import settings
-from hitarget.tests.conftest import AsyncClient
+from tests.conftest import AsyncClient
 
 pytestmark = pytest.mark.asyncio
 
