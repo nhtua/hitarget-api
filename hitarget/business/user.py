@@ -4,10 +4,11 @@ from hitarget.core import security
 from hitarget.core.errors import EntityDoesNotExist
 from hitarget.core.mongodb import AsyncIOMotorDatabase
 from hitarget.models.helper import PyObjectId
-from hitarget.models.user import User
+from hitarget.models.user import User, UserInDB, FormRegister
 
 
-async def create_user(db: AsyncIOMotorDatabase, user: User):
+async def create_user(db: AsyncIOMotorDatabase, form: FormRegister):
+    user = UserInDB(**form.dict())
     user.salt = security.generate_salt()
     user.password = security.get_password_hash(user.salt + user.password)
     result = await db[user.__collection__].insert_one(user.dict())

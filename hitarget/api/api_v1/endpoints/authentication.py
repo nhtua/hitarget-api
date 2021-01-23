@@ -3,10 +3,9 @@ from starlette.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_400_BAD_REQUEST
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 
-from hitarget.models.user import UserInDB, UserInResponse, FormLogin
+from hitarget.models.user import UserInDB, UserInResponse, FormLogin,FormRegister
 from hitarget.core.mongodb import AsyncIOMotorDatabase, get_database
 from hitarget.core.errors import EntityDoesNotExist
-from hitarget.core import security
 from hitarget.business import user as user_bus
 from hitarget.resources import strings
 from hitarget.services import jwt
@@ -15,7 +14,7 @@ router = APIRouter(prefix='/users')
 
 
 @router.post("/register", response_description="Register a new user account")
-async def register_user(user: UserInDB,
+async def register_user(user: FormRegister,
                         db: AsyncIOMotorDatabase = Depends(get_database)):
     created_user = await user_bus.create_user(db, user)
     response = UserInResponse(**created_user.dict())

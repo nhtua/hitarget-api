@@ -41,3 +41,9 @@ class UserInDB(User):
 class FormLogin(BaseModel):
     email: str = Field(...)
     password: str = Field(...)
+
+
+class FormRegister(BaseModel):
+    email: str = Field(...)
+    password: str = Field(...)
+    name: Optional[str]
