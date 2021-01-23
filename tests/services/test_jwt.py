@@ -2,7 +2,6 @@ import pytest
 import jwt
 from datetime import timedelta
 
-from hitarget.models.user import UserInResponse
 from hitarget.services.jwt import create_jwt_token, create_access_token_for_user, get_email_from_token
 from hitarget.core.config import settings
 
