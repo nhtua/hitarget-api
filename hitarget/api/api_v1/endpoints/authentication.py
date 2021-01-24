@@ -39,6 +39,6 @@ async def login(form: FormLogin,
 
     # Convert UserInDB into UserInResponse to remove internal data like password, etc.
     response = UserInResponse(**u.dict())
-    token = jwt.create_access_token_for_user(jwt.JWTPayload(**jsonable_encoder(response)))
+    token = jwt.create_access_token_for_user(response)
     response.token = token
     return JSONResponse(status_code=HTTP_200_OK, content=jsonable_encoder(response))

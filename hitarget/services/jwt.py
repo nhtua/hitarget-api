@@ -30,8 +30,9 @@ def create_jwt_token(
 
 
 def create_access_token_for_user(user: UserInResponse) -> str:
+    payload = JWTPayload(**jsonable_encoder(user))
     return create_jwt_token(
-        jwt_content=jsonable_encoder(user),
+        jwt_content=payload.dict(),
         secret_key=settings.JWT_SECRET,
         expires_delta=timedelta(minutes=settings.JWT_TOKEN_EXPIRE_MINUTES),
     )
