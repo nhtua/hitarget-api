@@ -24,10 +24,10 @@ async def get_routine_by_user(db: AsyncIOMotorDatabase,
     if email is not None:
         filter["email"] = email
     if is_completed is True:
-        filter["end_date"] = {"$or":[{
+        filter["end_date"] = {"$or": [{
             {"$eq": None},
             {"$lt": date.today()}
-        ]}
+        }]}
     cursor = db[RoutineInDB.__collection__].find(filter).sort('created_at', -1)
     result = []
     for doc in await cursor.to_list(100):

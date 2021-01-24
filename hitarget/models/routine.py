@@ -1,4 +1,4 @@
-from typing import Optional, Array
+from typing import Optional, List
 from pydantic import BaseModel, validator, Field
 from datetime import date, datetime
 
@@ -36,7 +36,7 @@ class Routine(BaseModel):
     end_date: Optional[date] = Field(
         description="this routine will end at the date",
     )
-    repeat: Optional[Array[RepeatCheckpoint]]
+    repeat: List[RepeatCheckpoint] = []
 
     @validator('end_date')
     def min_end_date(cls, v):
