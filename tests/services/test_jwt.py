@@ -2,7 +2,11 @@ import pytest
 import jwt
 from datetime import timedelta
 
-from hitarget.services.jwt import create_jwt_token, create_access_token_for_user, get_email_from_token
+from hitarget.services.jwt import \
+    create_jwt_token,\
+    create_access_token_for_user,\
+    get_email_from_token,\
+    get_user_id_from_token
 from hitarget.core.config import settings
 
 pytestmark = pytest.mark.asyncio
@@ -32,6 +36,13 @@ async def test_get_email_from_token(user_in_response):
     email = get_email_from_token(real_token)
 
     assert email == user_in_response.email
+
+
+async def test_get_user_id_from_token(user_in_response):
+    real_token = create_access_token_for_user(user_in_response)
+    user_id = get_user_id_from_token(real_token)
+
+    assert user_id == user_in_response.id
 
 
 def test_error_when_wrong_token() -> None:

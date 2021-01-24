@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from typing import Dict, Optional
+from bson import ObjectId
 
 import jwt
 from pydantic import BaseModel, ValidationError
@@ -45,3 +46,17 @@ def get_email_from_token(token: str) -> str:
         raise ValueError("unable to decode JWT token") from decode_error
     except ValidationError as validation_error:
         raise ValueError("malformed payload in token") from validation_error
+    except KeyError as key_error:
+        raise ValueError("malformed payload in token") from key_error
+
+
+def get_user_id_from_token(token: str) -> ObjectId:
+    try:
+        user_id = jwt.decode(token, settings.JWT_SECRET, verify=True, algorithms=[settings.JWT_ALGORITHM])['id']
+        return ObjectId(user_id)
+    except jwt.PyJWTError as decode_error:
+        raise ValueError("unable to decode JWT token") from decode_error
+    except ValidationError as validation_error:
+        raise ValueError("malformed payload in token") from validation_error
+    except KeyError as key_error:
+        raise ValueError("malformed payload in token") from key_error
