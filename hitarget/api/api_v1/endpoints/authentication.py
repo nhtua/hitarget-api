@@ -37,7 +37,8 @@ async def login(form: FormLogin,
     if not u.check_password(form.password):
         raise wrong_login_error
 
+    # Convert UserInDB into UserInResponse to remove internal data like password, etc.
     response = UserInResponse(**u.dict())
-    token = jwt.create_access_token_for_user(response)
+    token = jwt.create_access_token_for_user(jwt.JWTPayload(**jsonable_encoder(response)))
     response.token = token
     return JSONResponse(status_code=HTTP_200_OK, content=jsonable_encoder(response))

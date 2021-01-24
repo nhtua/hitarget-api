@@ -1,12 +1,18 @@
 from datetime import datetime, timedelta
-from typing import Dict
+from typing import Dict, Optional
 
 import jwt
-from pydantic import ValidationError
+from pydantic import BaseModel, ValidationError
 from fastapi.encoders import jsonable_encoder
 
 from hitarget.models.user import UserInResponse
 from hitarget.core.config import settings
+
+
+class JWTPayload(BaseModel):
+    id: str
+    email: str
+    name: Optional[str]
 
 
 def create_jwt_token(
