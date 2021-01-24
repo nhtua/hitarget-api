@@ -17,6 +17,9 @@ class Settings(BaseSettings):
     JWT_SECRET: str = "Z-chZ4$tpB?u-%wnBxuc"
     JWT_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # one week
 
+    ROUTINE_MAX_SECONDS: int = 60 * 60 * 8  # 8 hours
+    ROUTINE_MAX_LIST: int = 100
+
     class Config:
         case_sensitive = True
 
