@@ -4,12 +4,15 @@ from asgi_lifespan import LifespanManager
 from fastapi import FastAPI
 from httpx import AsyncClient
 from bson import ObjectId
+from datetime import date
 
 from hitarget.core.config import settings
 from hitarget.core.mongodb import AsyncIOMotorDatabase
 from hitarget.core import security
 from hitarget.models.user import UserInDB, UserInResponse
+from hitarget.models.routine import Routine
 from hitarget.services.jwt import create_access_token_for_user
+
 
 @pytest.fixture(scope="module")
 def app() -> FastAPI:
@@ -45,7 +48,7 @@ async def client(initialized_app: FastAPI) -> AsyncClient:
 
 
 @pytest.fixture
-async def user_data() -> Dict:
+def user_data() -> Dict:
     return dict(
         email="someone@email.com",
         password="password",
@@ -64,13 +67,9 @@ async def user_in_db(user_data: Dict, mongodb: AsyncIOMotorDatabase) -> UserInDB
 
 
 @pytest.fixture
-async def test_user(user_data: Dict) -> UserInResponse:
-    u = UserInResponse(
-        id=ObjectId('600ba0839e62bfc697974862'),
-        email=user_data['email'],
-        name=user_data['name'],
-        token=None
-    )
+def test_user(user_data: Dict) -> UserInResponse:
+    u = UserInResponse(**user_data)
+    u.id = ObjectId('600ba0839e62bfc697974862')
     return u
 
 
@@ -96,3 +95,13 @@ def authorized_client(
         **client.headers,
     }
     return client
+
+
+@pytest.fixture(scope="module", params=[None, date(2021, 6, 30)])
+def routine_sample(request) -> Routine:
+    return Routine(
+        summary ="Slowly build hitarget",
+        note    ="keep it grown daily",
+        duration=60 * 60 * 2,  # 2 hours
+        end_date=request.param
+    )

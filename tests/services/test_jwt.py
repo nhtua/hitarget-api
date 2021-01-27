@@ -23,26 +23,26 @@ async def test_create_jwt_token():
     assert decode['content'] == 'payload'
 
 
-async def test_create_access_token_for_user(user_in_response):
-    real_token = create_access_token_for_user(user_in_response)
+async def test_create_access_token_for_user(test_user):
+    real_token = create_access_token_for_user(test_user)
     decode = jwt.decode(real_token, key=settings.JWT_SECRET, verify=True, algorithms=[settings.JWT_ALGORITHM])
 
-    assert decode['email'] == user_in_response.email
-    assert decode['name']  == user_in_response.name
+    assert decode['email'] == test_user.email
+    assert decode['name']  == test_user.name
 
 
-async def test_get_email_from_token(user_in_response):
-    real_token = create_access_token_for_user(user_in_response)
+async def test_get_email_from_token(test_user):
+    real_token = create_access_token_for_user(test_user)
     email = get_email_from_token(real_token)
 
-    assert email == user_in_response.email
+    assert email == test_user.email
 
 
-async def test_get_user_id_from_token(user_in_response):
-    real_token = create_access_token_for_user(user_in_response)
+async def test_get_user_id_from_token(test_user):
+    real_token = create_access_token_for_user(test_user)
     user_id = get_user_id_from_token(real_token)
 
-    assert user_id == user_in_response.id
+    assert user_id == test_user.id
 
 
 def test_error_when_wrong_token() -> None:
