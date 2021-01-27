@@ -5,7 +5,6 @@ from asgi_lifespan import LifespanManager
 from fastapi import FastAPI
 from httpx import AsyncClient
 from bson import ObjectId
-from datetime import date
 
 from hitarget.core.config import settings
 from hitarget.core.mongodb import AsyncIOMotorDatabase
@@ -83,7 +82,7 @@ def user_object_id() -> ObjectId:
 
 
 @pytest.fixture
-async def user_in_db(user_data: Dict, user_object_id: ObjectId, mongodb: AsyncIOMotorDatabase) -> UserInDB:
+async def user_in_db(reset_users, user_data: Dict, user_object_id: ObjectId, mongodb: AsyncIOMotorDatabase) -> UserInDB:
     data = user_data.copy()
     data['_id'] = user_object_id
     data['salt'] = security.generate_salt()
@@ -101,7 +100,8 @@ def test_user(user_data: Dict, user_object_id: ObjectId) -> UserInResponse:
 
 
 @pytest.fixture
-def token(test_user: UserInResponse) -> str:
+def token(user_in_db: UserInDB) -> str:
+    test_user = UserInResponse(**user_in_db.dict())
     return create_access_token_for_user(test_user)
 
 
@@ -122,13 +122,3 @@ def authorized_client(
         **client.headers,
     }
     return client
-
-
-@pytest.fixture(params=[None, date(2021, 6, 30)])
-def routine_sample(request) -> Routine:
-    return Routine(
-        summary ="Slowly build hitarget",
-        note    ="keep it grown daily",
-        duration=60 * 60 * 2,  # 2 hours
-        end_date=request.param
-    )
