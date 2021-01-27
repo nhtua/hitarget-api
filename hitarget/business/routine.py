@@ -1,8 +1,13 @@
-from datetime import datetime, date
+from typing import List
+from datetime import datetime, date, time
 
 from hitarget.core.mongodb import AsyncIOMotorDatabase
 from hitarget.models.routine import FormAddRoutine, RoutineInDB, RoutineInResponse
 from hitarget.models.helper import PyObjectId, ObjectId
+
+
+def mongo_today():
+    return datetime.combine(date.today(), time(hour=0, minute=0, second=0))
 
 
 async def create_routine(db: AsyncIOMotorDatabase, form: FormAddRoutine, user_id: ObjectId):
@@ -15,19 +20,25 @@ async def create_routine(db: AsyncIOMotorDatabase, form: FormAddRoutine, user_id
     return routine
 
 
+# NOTE: work_in_progress=None by default to get all routines
 async def get_routine_by_user(db: AsyncIOMotorDatabase,
                             user_id: ObjectId = None,
                             email: str = None,
-                            is_completed: bool = None):
+                            work_in_progress: bool = None) -> List[RoutineInResponse]:
     filter = {}
     if user_id is not None:
         filter['user_id'] = user_id
     if email is not None:
         filter["email"] = email
-    if is_completed is True:
+    if work_in_progress is True:
         filter["end_date"] = {"$or": [{
             {"$eq": None},
-            {"$lt": date.today()}
+            {"$gt": mongo_today()}
+        }]}
+    if work_in_progress is False:
+        filter["end_date"] = {"$and": [{
+            {"$ne": None},
+            {"$lt": mongo_today()}
         }]}
     cursor = db[RoutineInDB.__collection__].find(filter).sort('created_at', -1)
     result = []

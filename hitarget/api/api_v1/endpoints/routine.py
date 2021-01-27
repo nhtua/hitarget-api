@@ -22,3 +22,13 @@ async def add_routine(
     response = RoutineInResponse(**created_routine.dict())
     return JSONResponse(status_code=HTTP_200_OK,
                         content=jsonable_encoder(response))
+
+
+@router.get("", response_description="Get list of routines")
+async def list_routine(
+    db: AsyncIOMotorDatabase = Depends(get_database),
+    user: UserInResponse = Depends(get_current_authorized_user)
+):
+    routines = await routine_bus.get_routine_by_user(db, user_id=user.id)
+    return JSONResponse(status_code=HTTP_200_OK,
+                        content=jsonable_encoder(routines))

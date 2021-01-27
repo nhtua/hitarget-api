@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     API_HOST: str = "0.0.0.0"
 
     MONGODB_URL: str = "mongodb://127.0.0.1:27017/"
-    MONGODB_NAME: str = "hitarget"
+    MONGODB_NAME: str = "hitarget-test"
     MONGODB_MAX_POOL_SIZE = 10
     MONGODB_MIN_POOL_SIZE = 1
 
