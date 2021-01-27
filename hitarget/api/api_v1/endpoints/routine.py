@@ -18,7 +18,7 @@ async def add_routine(
     db: AsyncIOMotorDatabase = Depends(get_database),
     user: UserInResponse = Depends(get_current_authorized_user)
 ):
-    created_routine = await routine_bus.create_routine(db, form)
+    created_routine = await routine_bus.create_routine(db, form, user.id)
     response = RoutineInResponse(**created_routine.dict())
     return JSONResponse(status_code=HTTP_200_OK,
                         content=jsonable_encoder(response))

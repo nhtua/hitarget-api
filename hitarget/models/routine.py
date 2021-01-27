@@ -38,11 +38,25 @@ class Routine(BaseModel):
     )
     repeat: List[RepeatCheckpoint] = []
 
+    class Config:
+        json_encoders = {
+            date: lambda v: v.strftime("%Y-%m-%d"),
+        }
+
     @validator('end_date')
     def min_end_date(cls, v):
+        if v is None:
+            return v
         if v <= date.today():
             raise ValueError('End date must be in future')
         return v
+
+    def to_mongo(self):
+        data = self.dict()
+        d = data['end_date']
+        data['end_date'] = datetime(year=d.year, month=d.month, day=d.day,
+                                    hour=0, minute=0, second=0) if d is not None else None
+        return data
 
 
 class RoutineInDB(Routine):
@@ -60,6 +74,7 @@ class RoutineInResponse(Routine):
     class Config:
         json_encoders = {
             ObjectId: lambda v: str(v),
+            date: lambda v: v.strftime("%Y-%m-%d")
         }
 
 

@@ -29,7 +29,7 @@ async def test_user_in_db(user_data, mongodb):
     assert u is not None
 
 
-async def test_reset_db(mongodb, reset_db):
+async def test_reset_db(mongodb, reset_users):
     collection = mongodb[User.__collection__]
     u = await collection.find_one({"email": "someone@email.com"})
     assert u is None

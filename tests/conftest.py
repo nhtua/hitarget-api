@@ -1,4 +1,5 @@
 import pytest
+import asyncio
 from typing import Dict
 from asgi_lifespan import LifespanManager
 from fastapi import FastAPI
@@ -14,6 +15,16 @@ from hitarget.models.routine import Routine
 from hitarget.services.jwt import create_access_token_for_user
 
 
+# This workaround works
+# for https://github.com/pytest-dev/pytest-asyncio/issues/38#issuecomment-264418154
+@pytest.fixture(scope='session')
+def event_loop(request):
+    """Create an instance of the default event loop for each test case."""
+    loop = asyncio.get_event_loop_policy().new_event_loop()
+    yield loop
+    loop.close()
+
+
 @pytest.fixture(scope="module")
 def app() -> FastAPI:
     from hitarget.main import get_application  # local import for testing purpose
@@ -21,20 +32,30 @@ def app() -> FastAPI:
     return get_application()
 
 
-@pytest.fixture()
+@pytest.fixture(scope="module")
 async def initialized_app(app: FastAPI) -> FastAPI:
     async with LifespanManager(app):
         yield app
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 async def mongodb(initialized_app: FastAPI) -> AsyncIOMotorDatabase:
     return initialized_app.state.dbe.get_default_database(settings.MONGODB_NAME)
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 async def reset_db(initialized_app: FastAPI):
     await initialized_app.state.dbe.drop_database(settings.MONGODB_NAME)
+
+
+@pytest.fixture
+async def reset_users(mongodb: AsyncIOMotorDatabase):
+    await mongodb[UserInDB.__collection__].drop()
+
+
+@pytest.fixture
+async def reset_routines(mongodb: AsyncIOMotorDatabase):
+    await mongodb[Routine.__collection__].drop()
 
 
 @pytest.fixture
@@ -57,8 +78,14 @@ def user_data() -> Dict:
 
 
 @pytest.fixture
-async def user_in_db(user_data: Dict, mongodb: AsyncIOMotorDatabase) -> UserInDB:
+def user_object_id() -> ObjectId:
+    return ObjectId('600ba0839e62bfc697974862')
+
+
+@pytest.fixture
+async def user_in_db(user_data: Dict, user_object_id: ObjectId, mongodb: AsyncIOMotorDatabase) -> UserInDB:
     data = user_data.copy()
+    data['_id'] = user_object_id
     data['salt'] = security.generate_salt()
     data['password'] = security.get_password_hash(data['salt'] + data['password'])
     result = await mongodb.users.insert_one(data)
@@ -67,9 +94,9 @@ async def user_in_db(user_data: Dict, mongodb: AsyncIOMotorDatabase) -> UserInDB
 
 
 @pytest.fixture
-def test_user(user_data: Dict) -> UserInResponse:
+def test_user(user_data: Dict, user_object_id: ObjectId) -> UserInResponse:
     u = UserInResponse(**user_data)
-    u.id = ObjectId('600ba0839e62bfc697974862')
+    u.id = user_object_id
     return u
 
 
@@ -80,7 +107,7 @@ def token(test_user: UserInResponse) -> str:
 
 @pytest.fixture
 def authorization_prefix() -> str:
-    from app.core.config import settings
+    from hitarget.core.config import settings
     return settings.JWT_TOKEN_PREFIX
 
 
@@ -97,7 +124,7 @@ def authorized_client(
     return client
 
 
-@pytest.fixture(scope="module", params=[None, date(2021, 6, 30)])
+@pytest.fixture(params=[None, date(2021, 6, 30)])
 def routine_sample(request) -> Routine:
     return Routine(
         summary ="Slowly build hitarget",

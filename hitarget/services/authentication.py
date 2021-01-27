@@ -61,9 +61,10 @@ async def get_current_authorized_user(
         )
 
     try:
-        return await find_user_by(user_id=user_id)
+        user = await find_user_by(db, id=user_id)
     except EntityDoesNotExist:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=strings.MALFORMED_PAYLOAD,
         )
+    return UserInResponse(**user.dict())

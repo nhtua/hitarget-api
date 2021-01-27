@@ -5,11 +5,12 @@ from hitarget.models.routine import FormAddRoutine, RoutineInDB, RoutineInRespon
 from hitarget.models.helper import PyObjectId, ObjectId
 
 
-async def add_routine(db: AsyncIOMotorDatabase, form: FormAddRoutine, user_id: ObjectId):
-    routine = RoutineInDB(**form.dict())
-    routine.created_at = datetime.now()
-    routine.user_id = user_id
-    result = await db[routine.__collection__].insert_one(routine.dict())
+async def create_routine(db: AsyncIOMotorDatabase, form: FormAddRoutine, user_id: ObjectId):
+    data = form.dict()
+    data['user_id'] = user_id
+    data['created_at'] = datetime.now()
+    routine = RoutineInDB(**data)
+    result = await db[routine.__collection__].insert_one(routine.to_mongo())
     routine.id = PyObjectId(str(result.inserted_id))
     return routine
 

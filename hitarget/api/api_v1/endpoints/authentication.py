@@ -3,7 +3,7 @@ from starlette.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_400_BAD_REQUEST
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 
-from hitarget.models.user import UserInDB, UserInResponse, FormLogin, FormRegister
+from hitarget.models.user import UserInResponse, FormLogin, FormRegister
 from hitarget.core.mongodb import AsyncIOMotorDatabase, get_database
 from hitarget.core.errors import EntityDoesNotExist
 from hitarget.business import user as user_bus
@@ -33,7 +33,7 @@ async def login(form: FormLogin,
         u = await user_bus.find_user_by(db, email=form.email)
     except EntityDoesNotExist as error:
         raise wrong_login_error from error
-    u = UserInDB(**u)
+
     if not u.check_password(form.password):
         raise wrong_login_error
 
