@@ -9,7 +9,7 @@ from hitarget.core.config import settings
 from hitarget.core.mongodb import AsyncIOMotorDatabase
 from hitarget.core import security
 from hitarget.models.user import UserInDB, UserInResponse
-
+from hitarget.services.jwt import create_access_token_for_user
 
 @pytest.fixture(scope="module")
 def app() -> FastAPI:
@@ -64,7 +64,7 @@ async def user_in_db(user_data: Dict, mongodb: AsyncIOMotorDatabase) -> UserInDB
 
 
 @pytest.fixture
-async def user_in_response(user_data: Dict) -> UserInResponse:
+async def test_user(user_data: Dict) -> UserInResponse:
     u = UserInResponse(
         id=ObjectId('600ba0839e62bfc697974862'),
         email=user_data['email'],
@@ -72,3 +72,27 @@ async def user_in_response(user_data: Dict) -> UserInResponse:
         token=None
     )
     return u
+
+
+@pytest.fixture
+def token(test_user: UserInResponse) -> str:
+    return create_access_token_for_user(test_user)
+
+
+@pytest.fixture
+def authorization_prefix() -> str:
+    from app.core.config import settings
+    return settings.JWT_TOKEN_PREFIX
+
+
+@pytest.fixture
+def authorized_client(
+    client: AsyncClient,
+    token: str,
+    authorization_prefix: str
+) -> AsyncClient:
+    client.headers = {
+        "Authorization": f"{authorization_prefix} {token}",
+        **client.headers,
+    }
+    return client
