@@ -36,7 +36,6 @@ class Routine(BaseModel):
     end_date: Optional[date] = Field(
         description="this routine will end at the date",
     )
-    repeat: List[RepeatCheckpoint] = []
 
     class Config:
         json_encoders = {
@@ -63,6 +62,7 @@ class RoutineInDB(Routine):
     id: Optional[PyObjectId] = Field(alias="_id")
     user_id: PyObjectId = Field(...)
     created_at: datetime = Field(...)
+    repeat: List[RepeatCheckpoint] = []
 
     class Config:
         allow_population_by_field_name = True
@@ -70,6 +70,7 @@ class RoutineInDB(Routine):
 
 class RoutineInResponse(Routine):
     id: Optional[PyObjectId]
+    repeat: List[RepeatCheckpoint] = []
 
     class Config:
         json_encoders = {
