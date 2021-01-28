@@ -1,10 +1,15 @@
 import pytest
 from bson import ObjectId
+from starlette.status import HTTP_400_BAD_REQUEST
 
 from hitarget.core.config import settings
 from hitarget.models.user import User, FormLogin
+from hitarget.resources import strings
 
-pytestmark = pytest.mark.asyncio
+pytestmark = [
+    pytest.mark.asyncio,
+    pytest.mark.usefixtures('reset_db')
+]
 
 
 async def test_create_user(user_data, client, mongodb):
@@ -45,3 +50,14 @@ async def test_login(client, user_data, user_in_db):
     assert response['token'] != ""
     assert "password" not in response
     assert "salt"     not in response
+
+
+async def test_login_unknown_user(client, user_in_db):
+    form = FormLogin(
+        email="xyz",
+        password="super_secret"
+    )
+    response = await client.post(f"{settings.API_V1_PREFIX}/users/login", json=form.dict())
+    assert response.status_code == HTTP_400_BAD_REQUEST
+    msg = response.json()
+    assert msg["errors"][0] == strings.INCORRECT_LOGIN_INPUT
