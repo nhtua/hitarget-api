@@ -1,7 +1,7 @@
 from typing import Optional
 
 from fastapi import Depends, HTTPException, Security
-from fastapi.security import APIKeyHeader
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from starlette import requests, status
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
@@ -14,7 +14,7 @@ from hitarget.resources import strings
 from .jwt import get_user_id_from_token
 
 
-class HitargetAPIKeyHeader(APIKeyHeader):
+class HitargetHTTPBearer(HTTPBearer):
     async def __call__(
         self,
         request: requests.Request,
@@ -29,23 +29,14 @@ class HitargetAPIKeyHeader(APIKeyHeader):
 
 
 def _get_authorization_header(
-    api_key: str = Security(HitargetAPIKeyHeader(name="Authorization"))
+    credentials: HTTPAuthorizationCredentials = Security(HitargetHTTPBearer())
 ) -> str:
-    try:
-        token_prefix, token = api_key.split(" ")
-    except ValueError:
+    if credentials.scheme != settings.JWT_TOKEN_PREFIX:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=strings.WRONG_TOKEN_PREFIX,
         )
-
-    if token_prefix != settings.JWT_TOKEN_PREFIX:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail=strings.WRONG_TOKEN_PREFIX,
-        )
-
-    return token
+    return credentials.credentials
 
 
 async def get_current_authorized_user(
