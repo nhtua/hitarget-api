@@ -8,14 +8,18 @@ class Settings(BaseSettings):
     API_HOST: str = "0.0.0.0"
 
     MONGODB_URL: str = "mongodb://127.0.0.1:27017/"
-    MONGODB_NAME: str = "hitarget"
+    MONGODB_NAME: str = "hitarget-test"
     MONGODB_MAX_POOL_SIZE = 10
     MONGODB_MIN_POOL_SIZE = 1
 
     JWT_ISSUER: str = "hiTargetV1"
     JWT_ALGORITHM: str = "HS256"
     JWT_SECRET: str = "Z-chZ4$tpB?u-%wnBxuc"
+    JWT_TOKEN_PREFIX = "Bearer"
     JWT_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # one week
+
+    ROUTINE_MAX_SECONDS: int = 60 * 60 * 8  # 8 hours
+    ROUTINE_MAX_LIST: int = 100
 
     class Config:
         case_sensitive = True

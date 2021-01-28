@@ -14,7 +14,7 @@ async def create_user(db: AsyncIOMotorDatabase, form: FormRegister):
     return user
 
 
-async def find_user_by(db: AsyncIOMotorDatabase, id: str = None, email: str = None):
+async def find_user_by(db: AsyncIOMotorDatabase, id: str = None, email: str = None) -> UserInDB:
     filter = {}
     if id is not None:
         filter["_id"] = PyObjectId(id)
@@ -24,4 +24,4 @@ async def find_user_by(db: AsyncIOMotorDatabase, id: str = None, email: str = No
     result = await db[User.__collection__].find_one(filter)
     if result is None:
         raise EntityDoesNotExist()
-    return result
+    return UserInDB(**result)

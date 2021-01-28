@@ -1,12 +1,19 @@
 from datetime import datetime, timedelta
-from typing import Dict
+from typing import Dict, Optional
+from bson import ObjectId
 
 import jwt
-from pydantic import ValidationError
+from pydantic import BaseModel, ValidationError
 from fastapi.encoders import jsonable_encoder
 
 from hitarget.models.user import UserInResponse
 from hitarget.core.config import settings
+
+
+class JWTPayload(BaseModel):
+    id: str
+    email: str
+    name: Optional[str]
 
 
 def create_jwt_token(
@@ -24,8 +31,9 @@ def create_jwt_token(
 
 
 def create_access_token_for_user(user: UserInResponse) -> str:
+    payload = JWTPayload(**jsonable_encoder(user))
     return create_jwt_token(
-        jwt_content=jsonable_encoder(user),
+        jwt_content=payload.dict(),
         secret_key=settings.JWT_SECRET,
         expires_delta=timedelta(minutes=settings.JWT_TOKEN_EXPIRE_MINUTES),
     )
@@ -38,3 +46,17 @@ def get_email_from_token(token: str) -> str:
         raise ValueError("unable to decode JWT token") from decode_error
     except ValidationError as validation_error:
         raise ValueError("malformed payload in token") from validation_error
+    except KeyError as key_error:
+        raise ValueError("malformed payload in token") from key_error
+
+
+def get_user_id_from_token(token: str) -> ObjectId:
+    try:
+        user_id = jwt.decode(token, settings.JWT_SECRET, verify=True, algorithms=[settings.JWT_ALGORITHM])['id']
+        return ObjectId(user_id)
+    except jwt.PyJWTError as decode_error:
+        raise ValueError("unable to decode JWT token") from decode_error
+    except ValidationError as validation_error:
+        raise ValueError("malformed payload in token") from validation_error
+    except KeyError as key_error:
+        raise ValueError("malformed payload in token") from key_error
