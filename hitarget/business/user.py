@@ -9,7 +9,7 @@ async def create_user(db: AsyncIOMotorDatabase, form: FormRegister):
     user = UserInDB(**form.dict())
     user.salt = security.generate_salt()
     user.password = security.get_password_hash(user.salt + user.password)
-    result = await db[user.__collection__].insert_one(user.dict())
+    result = await db[user.__collection__].insert_one(user.to_mongo())
     user.id = PyObjectId(str(result.inserted_id))
     return user
 

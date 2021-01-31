@@ -43,5 +43,6 @@ async def get_routine_by_user(db: AsyncIOMotorDatabase,
     cursor = db[RoutineInDB.__collection__].find(filter).sort('created_at', -1)
     result = []
     for doc in await cursor.to_list(100):
-        result.append(RoutineInResponse(**doc))
+        id = doc.pop('_id')
+        result += [RoutineInResponse(id=id, **doc)]
     return result

@@ -52,6 +52,7 @@ class Routine(BaseModel):
 
     def to_mongo(self):
         data = self.dict()
+        data.pop('id', None)
         d = data['end_date']
         data['end_date'] = datetime(year=d.year, month=d.month, day=d.day,
                                     hour=0, minute=0, second=0) if d is not None else None
