@@ -12,7 +12,7 @@ class RepeatCheckpoint(BaseModel):
     gain: int = Field(
         description='seconds user has gained on a daily routine',
         gt=0,
-        lt=settings.ROUTINE_MAX_SECONDS
+        le=settings.ROUTINE_MAX_SECONDS
     )
 
 
