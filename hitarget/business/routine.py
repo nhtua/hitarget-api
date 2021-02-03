@@ -85,8 +85,9 @@ async def update_checkpoint(
             last_update = datetime.now()
         )
     current_update = datetime.now()
-    last.gain += math.floor((current_update - last.last_update).total_seconds())
-    last.percentage = round(last.gain / routine.duration * 100, 2)
+    if last.is_running:
+        last.gain += math.floor((current_update - last.last_update).total_seconds())
+        last.percentage = round(last.gain / routine.duration * 100, 2)
     last.is_running = cp.is_running
     last.last_update = current_update
 
