@@ -31,7 +31,7 @@ class Routine(BaseModel):
     duration: int       = Field(
         description="duration in seconds each day.",
         gt=0,
-        lt=settings.ROUTINE_MAX_SECONDS
+        le=settings.ROUTINE_MAX_SECONDS
     )
     end_date: Optional[date] = Field(
         description="this routine will end at the date",
