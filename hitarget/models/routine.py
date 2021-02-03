@@ -1,19 +1,38 @@
 from typing import Optional, List
-from pydantic import BaseModel, validator, Field
 from datetime import date, datetime
+from pydantic import BaseModel, validator, Field
 
 from .helper import PyObjectId, ObjectId
 from hitarget.core.config import settings
 
 
-class RepeatCheckpoint(BaseModel):
+class Checkpoint(BaseModel):
     date: date
-    percentage: int = 0
+    percentage: float = 0
     gain: int = Field(
         description='seconds user has gained on a daily routine',
-        gt=0,
-        le=settings.ROUTINE_MAX_SECONDS
-    )
+        ge=0,
+        le=settings.ROUTINE_MAX_SECONDS)
+    is_running: bool = Field(
+        description='Indicate a checkpoint is running or stopped',
+        default=False)
+    last_update: datetime = Field(
+        description="Last time server received update from client")
+
+    class Config:
+        json_encoders = {
+            date: lambda v: v.strftime("%Y-%m-%d"),
+        }
+
+    def to_mongo(self):
+        data = self.dict()
+        data['date'] = self.date.strftime("%Y-%m-%d")
+        return data
+
+
+class CheckpointInRequest(BaseModel):
+    routine_id: str
+    is_running: bool
 
 
 class Routine(BaseModel):
@@ -51,11 +70,15 @@ class Routine(BaseModel):
         return v
 
     def to_mongo(self):
+        if len(self.repeat):
+            for i, v in enumerate(self.repeat):
+                self.repeat[i] = v.to_mongo()
         data = self.dict()
         data.pop('id', None)
         d = data['end_date']
         data['end_date'] = datetime(year=d.year, month=d.month, day=d.day,
                                     hour=0, minute=0, second=0) if d is not None else None
+
         return data
 
 
@@ -63,15 +86,19 @@ class RoutineInDB(Routine):
     id: Optional[PyObjectId] = Field(alias="_id")
     user_id: PyObjectId = Field(...)
     created_at: datetime = Field(...)
-    repeat: List[RepeatCheckpoint] = []
+    repeat: List[Checkpoint] = []
 
     class Config:
         allow_population_by_field_name = True
+        json_encoders = {
+            ObjectId: lambda v: str(v),
+            date: lambda v: v.strftime("%Y-%m-%d")
+        }
 
 
 class RoutineInResponse(Routine):
     id: Optional[PyObjectId]
-    repeat: List[RepeatCheckpoint] = []
+    repeat: List[Checkpoint] = []
 
     class Config:
         json_encoders = {
