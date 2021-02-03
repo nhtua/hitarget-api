@@ -93,7 +93,7 @@ async def update_checkpoint(
     routine.repeat.insert(0, last)
     result = await db[RoutineInDB.__collection__].update_one(
         {"_id": routine.id},
-        {"$set": routine.to_mongo()}
+        {"$set": {"repeat": routine.to_mongo()['repeat']}}
     )
     if result.matched_count == 0:
         raise EntityDoesNotExist()
