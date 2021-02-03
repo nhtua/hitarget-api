@@ -34,7 +34,7 @@ async def list_routine(
                         content=jsonable_encoder(routines))
 
 
-@router.post("/checkpoint", response_description="Update status of today checkpoint")
+@router.put("/checkpoint", response_description="Update status of today checkpoint")
 async def update_checkpoint(
     checkpoint: CheckpointInRequest,
     db: AsyncIOMotorDatabase = Depends(get_database),
