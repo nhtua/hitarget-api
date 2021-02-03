@@ -62,7 +62,7 @@ async def update_checkpoint(
     db: AsyncIOMotorDatabase,
     cp: CheckpointInRequest,
     user_id: ObjectId
-) -> RoutineInDB:
+) -> RoutineInResponse:
     routine = await db[RoutineInDB.__collection__].find_one({
         "_id": ObjectId(cp.routine_id),
         "user_id": user_id
@@ -98,4 +98,4 @@ async def update_checkpoint(
     )
     if result.matched_count == 0:
         raise EntityDoesNotExist()
-    return routine
+    return RoutineInResponse(**routine.dict())
