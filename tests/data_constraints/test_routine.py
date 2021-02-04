@@ -43,13 +43,3 @@ async def test_dict_from_checkpoint(checkpoints_data):
     cp = Checkpoint(**checkpoints_data[0])
     data = cp.dict()
     assert data['date'] == date(2021, 1, 2)
-
-
-async def get_checkpoint_from_date(checkpoints_in_db):
-    today = date(2021, 1, 2)
-    y = None
-    # do experiment to find the checkpoint
-    for x in checkpoints_in_db:
-        if x.strftime('%Y-%m-%d') == today:
-            y = x
-    assert y.date == today
