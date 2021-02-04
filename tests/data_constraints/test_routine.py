@@ -42,7 +42,7 @@ async def test_checkpoint_from_dict(checkpoints_data):
 async def test_dict_from_checkpoint(checkpoints_data):
     cp = Checkpoint(**checkpoints_data[0])
     data = cp.dict()
-    assert data['date'] ==  date(2021, 1, 2)
+    assert data['date'] == date(2021, 1, 2)
 
 
 async def get_checkpoint_from_date(checkpoints_in_db):
