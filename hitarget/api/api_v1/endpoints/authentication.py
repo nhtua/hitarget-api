@@ -5,7 +5,7 @@ from fastapi.encoders import jsonable_encoder
 
 from hitarget.models.user import UserInResponse, FormLogin, FormRegister
 from hitarget.core.mongodb import AsyncIOMotorDatabase, get_database
-from hitarget.core.errors import EntityDoesNotExist
+from hitarget.core.errors import EntityDoesNotExist, DuplicatedIdentityKey
 from hitarget.business import user as user_bus
 from hitarget.resources import strings
 from hitarget.services import jwt
@@ -16,7 +16,14 @@ router = APIRouter(prefix='/users', tags=["Authentication"])
 @router.post("/register", response_description="Register a new user account")
 async def register_user(user: FormRegister,
                         db: AsyncIOMotorDatabase = Depends(get_database)):
-    created_user = await user_bus.create_user(db, user)
+    try:
+        created_user = await user_bus.create_user(db, user)
+    except DuplicatedIdentityKey as dup_err:
+        raise HTTPException(
+            status_code=HTTP_400_BAD_REQUEST,
+            detail=str(dup_err)
+        )
+
     response = UserInResponse(**created_user.dict())
     return JSONResponse(status_code=HTTP_201_CREATED,
                         content=jsonable_encoder(response))
