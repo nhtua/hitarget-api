@@ -2,7 +2,7 @@ from typing import Optional, List
 from datetime import date, datetime
 from pydantic import BaseModel, validator, Field
 
-from .helper import PyObjectId, ObjectId
+from .helper import PyObjectId, jsonify_fields
 from hitarget.core.config import settings
 
 
@@ -20,9 +20,7 @@ class Checkpoint(BaseModel):
         description="Last time server received update from client")
 
     class Config:
-        json_encoders = {
-            date: lambda v: v.strftime("%Y-%m-%d"),
-        }
+        json_encoders = jsonify_fields(['date'])
 
     def to_mongo(self):
         data = self.dict()
@@ -57,9 +55,7 @@ class Routine(BaseModel):
     )
 
     class Config:
-        json_encoders = {
-            date: lambda v: v.strftime("%Y-%m-%d"),
-        }
+        json_encoders = jsonify_fields(['date'])
 
     @validator('end_date')
     def min_end_date(cls, v):
@@ -90,10 +86,7 @@ class RoutineInDB(Routine):
 
     class Config:
         allow_population_by_field_name = True
-        json_encoders = {
-            ObjectId: lambda v: str(v),
-            date: lambda v: v.strftime("%Y-%m-%d")
-        }
+        json_encoders = jsonify_fields(['ObjectId', 'date'])
 
 
 class RoutineInResponse(Routine):
@@ -101,10 +94,7 @@ class RoutineInResponse(Routine):
     repeat: List[Checkpoint] = []
 
     class Config:
-        json_encoders = {
-            ObjectId: lambda v: str(v),
-            date: lambda v: v.strftime("%Y-%m-%d")
-        }
+        json_encoders = jsonify_fields(['ObjectId', 'date', 'datetime'])
 
 
 class FormAddRoutine(Routine):
