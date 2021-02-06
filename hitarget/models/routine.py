@@ -57,14 +57,6 @@ class Routine(BaseModel):
     class Config:
         json_encoders = jsonify_fields(['date'])
 
-    @validator('end_date')
-    def min_end_date(cls, v):
-        if v is None:
-            return v
-        if v <= date.today():
-            raise ValueError('End date must be in future')
-        return v
-
     def to_mongo(self):
         if len(self.repeat):
             for i, v in enumerate(self.repeat):
