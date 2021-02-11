@@ -1,6 +1,6 @@
 from typing import Optional, List
 from datetime import date, datetime
-from pydantic import BaseModel, validator, Field
+from pydantic import BaseModel, Field
 
 from .helper import PyObjectId, jsonify_fields
 from hitarget.core.config import settings
