@@ -24,7 +24,7 @@ async def create_routine(
     db: AsyncIOMotorDatabase,
     form: FormAddRoutine,
     user_id: ObjectId
-):
+) -> RoutineInDB:
     data = form.dict()
     data['user_id'] = user_id
     data['created_at'] = datetime.now()

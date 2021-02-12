@@ -64,8 +64,7 @@ class Routine(BaseModel):
         data = self.dict()
         data.pop('id', None)
         d = data['end_date']
-        data['end_date'] = datetime(year=d.year, month=d.month, day=d.day,
-                                    hour=0, minute=0, second=0) if d is not None else None
+        data['end_date'] = datetime(d.year, d.month, d.day, 23, 59, 59) if d is not None else None
 
         return data
 
