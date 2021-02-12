@@ -122,3 +122,30 @@ def authorized_client(
         **client.headers,
     }
     return client
+
+
+@pytest.fixture
+def patch_datetime_now(monkeypatch):
+    def wrapper(*args, **kwargs):
+        import datetime
+        fake_datetime = datetime.datetime(*args, **kwargs)
+
+        def mock_now():
+            return fake_datetime
+
+        monkeypatch.setattr(datetime.datetime, 'now', mock_now)
+        monkeypatch.setattr(datetime.datetime, 'today', mock_now)
+    return wrapper
+
+
+@pytest.fixture
+def patch_today(monkeypatch):
+    def wrapper(*args, **kwargs):
+        import datetime
+        fake_date = datetime.date(*args, **kwargs)
+
+        def mock_today():
+            return fake_date
+
+        monkeypatch.setattr(datetime.date, 'today', mock_today)
+    return wrapper

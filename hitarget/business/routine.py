@@ -13,7 +13,11 @@ from hitarget.core.errors import EntityDoesNotExist
 
 
 def mongo_today():
-    return datetime.combine(date.today(), time(hour=0, minute=0, second=0))
+    return mongo_date(date.today())
+
+
+def mongo_date(d: date):
+    return datetime.combine(d, time(hour=23, minute=59, second=59))
 
 
 async def create_routine(

@@ -2,6 +2,7 @@ import pytest
 from datetime import datetime, date
 
 from hitarget.models.routine import Checkpoint
+from hitarget.business.routine import mongo_date, mongo_today
 
 pytestmark = pytest.mark.asyncio
 
@@ -43,3 +44,29 @@ async def test_dict_from_checkpoint(checkpoints_data):
     cp = Checkpoint(**checkpoints_data[0])
     data = cp.dict()
     assert data['date'] == date(2021, 1, 2)
+
+
+async def test_mock_today(patch_today):
+    patch_today(2021, 2, 9)
+    expect = date(2021, 2, 9)
+    assert date.today() == expect
+
+
+async def test_mock_now(patch_datetime_now):
+    patch_datetime_now(2021, 2, 8, 23, 59, 59)
+    expect = datetime(2021, 2, 8, 23, 59, 59)
+    assert datetime.now() == expect
+
+
+async def test_mongo_date():
+    input = date(2021, 2, 10)
+    expect = datetime(2021, 2, 10, 23, 59, 59)
+    real = mongo_date(input)
+    assert real == expect
+
+
+async def test_mongo_today(patch_today):
+    patch_today(2021, 2, 10)
+    expect = datetime(2021, 2, 10, 23, 59, 59)
+    real = mongo_today()
+    assert real == expect
