@@ -13,6 +13,8 @@ from hitarget.models.user import UserInDB, UserInResponse
 from hitarget.models.routine import Routine
 from hitarget.services.jwt import create_access_token_for_user
 
+from tests.fixtures.routine import *
+
 
 # This workaround works
 # for https://github.com/pytest-dev/pytest-asyncio/issues/38#issuecomment-264418154
