@@ -35,22 +35,24 @@ async def create_routine(
 
 
 # NOTE: work_in_progress=None by default to get all routines
-async def get_routine_by_user(db: AsyncIOMotorDatabase,
-                            user_id: ObjectId = None,
-                            work_in_progress: bool = None) -> List[RoutineInResponse]:
+async def get_routine_by_user(
+    db: AsyncIOMotorDatabase,
+    user_id: ObjectId = None,
+    is_complete: bool = None
+) -> List[RoutineInResponse]:
     filter = {}
     if user_id is not None:
         filter['user_id'] = user_id
-    if work_in_progress is True:
-        filter["end_date"] = {"$or": [{
-            {"$eq": None},
-            {"$gt": mongo_today()}
-        }]}
-    if work_in_progress is False:
-        filter["end_date"] = {"$and": [{
-            {"$ne": None},
-            {"$lt": mongo_today()}
-        }]}
+    if is_complete is False:
+        filter["$or"] = [
+            {"end_date": {"$eq": None}},
+            {"end_date": {"$gt": mongo_today()}}
+        ]
+    if is_complete is True:
+        filter["end_date"] = {
+            "$ne": None,
+            "$lt": mongo_today()
+        }
     cursor = db[RoutineInDB.__collection__].find(filter).sort('created_at', -1)
     result = []
     for doc in await cursor.to_list(100):

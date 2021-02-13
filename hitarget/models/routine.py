@@ -81,7 +81,8 @@ class RoutineInDB(Routine):
 
 
 class RoutineInResponse(Routine):
-    id: Optional[PyObjectId]
+    id: PyObjectId
+    user_id: PyObjectId
     repeat: List[Checkpoint] = []
 
     class Config:

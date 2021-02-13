@@ -31,7 +31,7 @@ async def routine_in_db(mongodb, reset_routines, routine_data, user_object_id):
             **routine_data
         ),
         dict(
-            end_date=datetime(2021, 6, 30, 0, 0, 0),
+            end_date=datetime(2021, 6, 30, 23, 59, 59),
             user_id=user_object_id,
             fixture="yes",
             **routine_data
