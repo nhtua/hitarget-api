@@ -59,15 +59,29 @@ async def test_create_routine(patch_datetime_now, mongodb, user_object_id, routi
     assert r.created_at == datetime(*d)
 
 
-async def test_get_unfinished_routine_by_user(patch_today, mongodb, user_object_id, routine_in_db, routine_data):
+async def test_get_noncomplete_routine_by_user(patch_today, mongodb, user_object_id, routine_in_db, routine_data):
     patch_today(2021, 2, 9)
     results = await routine.get_routine_by_user(mongodb, user_id=user_object_id, is_complete=False)
     assert len(results) == 2
 
-    patch_today(2021, 7, 1)
+
+async def test_get_half_complete_routine_by_user(patch_today, mongodb, user_object_id, routine_in_db, routine_data):
+    patch_today(2021, 7, 1)  # this day only 1 routine has end_date=None that exists
     results = await routine.get_routine_by_user(mongodb, user_id=user_object_id, is_complete=False)
     assert len(results) == 1
     assert results[0].duration == 60 * 60 * 2
     assert results[0].user_id == user_object_id
     assert results[0].summary == routine_data['summary']
     assert results[0].note == routine_data['note']
+    assert results[0].end_date is None
+
+
+async def test_get_complete_routine_by_user(patch_today, mongodb, user_object_id, routine_in_db, routine_data):
+    patch_today(2021, 7, 1)
+    results = await routine.get_routine_by_user(mongodb, user_id=user_object_id, is_complete=True)
+    assert len(results) == 1
+    assert results[0].duration == 60 * 60 * 2
+    assert results[0].user_id == user_object_id
+    assert results[0].summary == routine_data['summary']
+    assert results[0].note == routine_data['note']
+    assert results[0].end_date == date(2021, 6, 30)

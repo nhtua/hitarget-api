@@ -37,12 +37,11 @@ async def create_routine(
 # NOTE: work_in_progress=None by default to get all routines
 async def get_routine_by_user(
     db: AsyncIOMotorDatabase,
-    user_id: ObjectId = None,
+    user_id: ObjectId,
     is_complete: bool = None
 ) -> List[RoutineInResponse]:
     filter = {}
-    if user_id is not None:
-        filter['user_id'] = user_id
+    filter['user_id'] = user_id
     if is_complete is False:
         filter["$or"] = [
             {"end_date": {"$eq": None}},
