@@ -89,7 +89,7 @@ async def update_checkpoint(
             last_update = datetime.now()
         )
 
-    last = calculate_gain(last)
+    last = calculate_gain(last, cp.is_running, routine.duration)
 
     routine.repeat.insert(0, last)
     result = await db[RoutineInDB.__collection__].update_one(

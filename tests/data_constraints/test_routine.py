@@ -105,7 +105,6 @@ async def test_calculate_checkpoint_gain(patch_today, patch_datetime_now):
     assert after.percentage == round(after.gain / duration * 100, 2)
 
 
-@pytest.mark.skip(msg="pending to reshape Checkpoint's functionality")
 async def test_create_checkpoint_first_time(
     patch_datetime_now,
     patch_today,
