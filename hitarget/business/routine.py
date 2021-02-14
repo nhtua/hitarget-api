@@ -113,9 +113,16 @@ def calculate_gain(
 ) -> Checkpoint:
     cp = copy.deepcopy(checkpoint)
     current_update = datetime.now()
+
     if cp.is_running:
         cp.gain += math.floor((current_update - cp.last_update).total_seconds())
         cp.percentage = round(cp.gain / duration * 100, 2)
     cp.is_running = running_status
     cp.last_update = current_update
+
+    if cp.gain > duration:
+        cp.gain = duration
+        cp.percentage = 100
+        cp.is_running = False
+
     return cp

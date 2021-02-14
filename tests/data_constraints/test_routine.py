@@ -127,7 +127,7 @@ async def test_create_checkpoint_first_time(
     assert cp.last_update == datetime(*now)
 
 
-async def test_create_checkpoint_second_time(
+async def test_update_checkpoint_second_time(
     patch_datetime_now,
     patch_today,
     mongodb,
@@ -154,4 +154,34 @@ async def test_create_checkpoint_second_time(
     assert cp.gain == 30
     assert cp.percentage == round(30 / r['duration'] * 100, 2)
     assert cp.is_running is True
+    assert cp.last_update == datetime(*now)
+
+
+async def test_update_checkpoint_exceeds_duration(
+    patch_datetime_now,
+    patch_today,
+    mongodb,
+    routine_in_db,
+    user_object_id
+):
+    patch_today(2021, 2, 12)
+    r = await mongodb[Routine.__collection__].find_one({"end_date": None})
+    checkpoint = CheckpointInRequest(routine_id=str(r["_id"]), is_running=True)
+
+    now = [2021, 2, 12, 8, 30, 0]
+    patch_datetime_now(*now)
+    result_1st = await routine.update_checkpoint(mongodb, checkpoint, user_object_id)
+    assert result_1st.repeat is not None
+    assert result_1st.repeat != []
+
+    now = [2021, 2, 12, 11, 30, 0]
+    patch_datetime_now(*now)
+    result_2nd = await routine.update_checkpoint(mongodb, checkpoint, user_object_id)
+    assert len(result_2nd.repeat) == 1
+
+    cp = result_2nd.repeat[0]
+    assert cp.date == date.today()
+    assert cp.gain == 60 * 60 * 2
+    assert cp.percentage == 100
+    assert cp.is_running is False
     assert cp.last_update == datetime(*now)
