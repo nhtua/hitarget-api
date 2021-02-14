@@ -181,7 +181,38 @@ async def test_update_checkpoint_exceeds_duration(
 
     cp = result_2nd.repeat[0]
     assert cp.date == date.today()
-    assert cp.gain == 60 * 60 * 2
-    assert cp.percentage == 100
-    assert cp.is_running is False
+    assert cp.gain <= 60 * 60 * 2
+    assert cp.percentage == 100, "Percentage must be less than or equal 100"
+    assert cp.is_running is False, "Checkpoint should stop after gaining 100%"
+    assert cp.last_update == datetime(*now)
+
+
+async def test_update_checkpoint_from_pausing(
+    patch_datetime_now,
+    patch_today,
+    mongodb,
+    routine_in_db,
+    user_object_id
+):
+    patch_today(2021, 2, 12)
+    r = await mongodb[Routine.__collection__].find_one({"end_date": None})
+    checkpoint = CheckpointInRequest(routine_id=str(r["_id"]), is_running=False)
+
+    now = [2021, 2, 12, 8, 30, 0]
+    patch_datetime_now(*now)
+    result_1st = await routine.update_checkpoint(mongodb, checkpoint, user_object_id)
+    assert result_1st.repeat is not None
+    assert result_1st.repeat != []
+
+    now = [2021, 2, 12, 8, 45, 0]
+    patch_datetime_now(*now)
+    checkpoint2 = CheckpointInRequest(routine_id=str(r["_id"]), is_running=True)
+    result_2nd = await routine.update_checkpoint(mongodb, checkpoint2, user_object_id)
+    assert len(result_2nd.repeat) == 1
+
+    cp = result_2nd.repeat[0]
+    assert cp.date == date.today()
+    assert cp.gain == 0, "Must gain 0 seconds from pausing status"
+    assert cp.percentage == 0
+    assert cp.is_running is True
     assert cp.last_update == datetime(*now)
