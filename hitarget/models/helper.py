@@ -37,12 +37,12 @@ class MongoDateObject():
         field_schema.update(type='string')
 
 
-def jsonify_fields(fields: List[str] = []):
+def jsonify_fields(fields: List[str]):
     common = {}
-    if "ObjectId" in fields or not fields:
+    if "ObjectId" in fields:
         common[ObjectId] = lambda v: str(v)
-    if "date" in fields or not fields:
+    if "date" in fields:
         common[date] = lambda v: v.strftime("%Y-%m-%d")
-    if "datetime" in fields or not fields:
+    if "datetime" in fields:
         common[datetime] = lambda v: v.strftime("%Y-%m-%d %H:%M:%S")
     return common

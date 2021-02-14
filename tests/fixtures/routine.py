@@ -1,7 +1,7 @@
 import pytest
 from datetime import datetime
 
-from hitarget.models.routine import Routine, Checkpoint
+from hitarget.models.routine import Routine, RoutineInDB, Checkpoint
 
 
 @pytest.fixture
@@ -22,24 +22,31 @@ def routine_sample(request, routine_data) -> Routine:
 
 
 @pytest.fixture
-async def routine_in_db(mongodb, reset_routines, routine_data, user_object_id):
+async def routine_in_db(
+    mongodb,
+    reset_routines,
+    routine_data,
+    user_object_id
+) -> RoutineInDB:
     data = [
         dict(
             end_date=None,
             user_id=user_object_id,
+            created_at=datetime(2021, 2, 1, 8, 30, 0),
             fixture="yes",
             **routine_data
         ),
         dict(
             end_date=datetime(2021, 6, 30, 23, 59, 59),
             user_id=user_object_id,
+            created_at=datetime(2021, 2, 1, 8, 30, 0),
             fixture="yes",
             **routine_data
         )
     ]
     result = await mongodb[Routine.__collection__].insert_many(data)
     cursor = mongodb[Routine.__collection__].find({"_id": {"$in": result.inserted_ids}})
-    return [x for x in await cursor.to_list(10)]
+    return [RoutineInDB(**x) for x in await cursor.to_list(2)]
 
 
 @pytest.fixture

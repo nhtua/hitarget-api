@@ -81,12 +81,14 @@ class RoutineInDB(Routine):
 
 
 class RoutineInResponse(Routine):
-    id: PyObjectId
+    id: Optional[PyObjectId]
     user_id: PyObjectId
     repeat: List[Checkpoint] = []
 
     class Config:
-        json_encoders = jsonify_fields(['ObjectId', 'date', 'datetime'])
+        json_encoders = jsonify_fields(['ObjectId', 'date', 'datetime']).update({
+            Checkpoint: lambda x: x.to_mongo()
+        })
 
 
 class FormAddRoutine(Routine):

@@ -2,19 +2,14 @@ import pytest
 from datetime import datetime, date
 
 from hitarget.models.helper import PyObjectId
-from hitarget.models.routine import Checkpoint, FormAddRoutine
+from hitarget.models.routine import Routine,\
+    FormAddRoutine,\
+    Checkpoint,\
+    CheckpointInRequest
 from hitarget.business import routine
 
 pytestmark = [
-    pytest.mark.asyncio,
-    pytest.mark.usefixtures(
-        "reset_db",
-        "checkpoints_data",
-        "checkpoints_in_db",
-        "routine_data",
-        "routine_sample",
-        "routine_in_db"
-    )
+    pytest.mark.asyncio
 ]
 
 
@@ -85,3 +80,80 @@ async def test_get_complete_routine_by_user(patch_today, mongodb, user_object_id
     assert results[0].summary == routine_data['summary']
     assert results[0].note == routine_data['note']
     assert results[0].end_date == date(2021, 6, 30)
+
+
+async def test_calculate_checkpoint_gain(patch_today, patch_datetime_now):
+    patch_today(2021, 2, 9)
+    patch_datetime_now(2021, 2, 9, 8, 30, 0)
+    before = Checkpoint(
+        date = date.today(),
+        percentage = 0,
+        gain = 0,
+        is_running = True,
+        last_update = datetime.now()
+    )
+
+    patch_datetime_now(2021, 2, 9, 8, 31, 0)
+    duration = 60
+    after = routine.calculate_gain(before, running_status=True, duration=duration)
+
+    assert after.is_running is True
+    assert after.last_update > before.last_update
+    assert after.last_update == datetime(2021, 2, 9, 8, 31, 0)
+    assert after.date == before.date == date(2021, 2, 9)
+    assert after.gain == 60
+    assert after.percentage == round(after.gain / duration * 100, 2)
+
+
+@pytest.mark.skip(msg="pending to reshape Checkpoint's functionality")
+async def test_create_checkpoint_first_time(
+    patch_datetime_now,
+    patch_today,
+    mongodb,
+    routine_in_db,
+    user_object_id
+):
+    r = await mongodb[Routine.__collection__].find_one({"end_date": None})
+    checkpoint = CheckpointInRequest(routine_id=str(r["_id"]), is_running=True)
+    patch_today(2021, 2, 12)
+    now = [2021, 2, 12, 8, 30, 0]
+    patch_datetime_now(*now)
+    result = await routine.update_checkpoint(mongodb, checkpoint, user_object_id)
+    assert result.repeat is not None
+    cp = result.repeat[0]
+    assert cp.date == date.today()
+    assert cp.percentage == 0
+    assert cp.gain == 0
+    assert cp.is_running is True
+    assert cp.last_update == datetime(*now)
+
+
+@pytest.mark.skip(msg="pending to reshape Checkpoint's functionality")
+async def test_create_checkpoint_second_time(
+    patch_datetime_now,
+    patch_today,
+    mongodb,
+    routine_in_db,
+    user_object_id
+):
+    patch_today(2021, 2, 12)
+    r = await mongodb[Routine.__collection__].find_one({"end_date": None})
+    checkpoint = CheckpointInRequest(routine_id=str(r["_id"]), is_running=True)
+
+    now = [2021, 2, 12, 8, 30, 0]
+    patch_datetime_now(*now)
+    result_1st = await routine.update_checkpoint(mongodb, checkpoint, user_object_id)
+    assert result_1st.repeat is not None
+    assert result_1st.repeat != []
+
+    now = [2021, 2, 12, 8, 30, 30]
+    patch_datetime_now(*now)
+    result_2nd = await routine.update_checkpoint(mongodb, checkpoint, user_object_id)
+    assert len(result_2nd.repeat) == 1
+
+    cp = result_2nd.repeat[0]
+    assert cp.date == date.today()
+    assert cp.gain == 30
+    assert cp.percentage == round(30 / r['duration'] * 100, 2)
+    assert cp.is_running is True
+    assert cp.last_update == datetime(*now)

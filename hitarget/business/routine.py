@@ -1,4 +1,5 @@
 import math
+import copy
 from typing import List
 from datetime import datetime, date, time
 
@@ -75,8 +76,9 @@ async def update_checkpoint(
     routine = RoutineInDB(**routine)
     last = None
     for i, x in enumerate(routine.repeat):
+        assert isinstance(x, Checkpoint)
         if x.date == date.today():
-            last = routine.repeat.pop(i)
+            last = x
             break
     else:
         last = Checkpoint(
@@ -86,12 +88,8 @@ async def update_checkpoint(
             is_running = cp.is_running,
             last_update = datetime.now()
         )
-    current_update = datetime.now()
-    if last.is_running:
-        last.gain += math.floor((current_update - last.last_update).total_seconds())
-        last.percentage = round(last.gain / routine.duration * 100, 2)
-    last.is_running = cp.is_running
-    last.last_update = current_update
+
+    last = calculate_gain(last)
 
     routine.repeat.insert(0, last)
     result = await db[RoutineInDB.__collection__].update_one(
@@ -101,3 +99,18 @@ async def update_checkpoint(
     if result.matched_count == 0:
         raise EntityDoesNotExist()
     return RoutineInResponse(**routine.dict())
+
+
+def calculate_gain(
+    checkpoint: Checkpoint,
+    running_status: bool,
+    duration: int
+) -> Checkpoint:
+    cp = copy.deepcopy(checkpoint)
+    current_update = datetime.now()
+    if cp.is_running:
+        cp.gain += math.floor((current_update - cp.last_update).total_seconds())
+        cp.percentage = round(cp.gain / duration * 100, 2)
+    cp.is_running = running_status
+    cp.last_update = current_update
+    return cp

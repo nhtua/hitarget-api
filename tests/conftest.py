@@ -1,5 +1,6 @@
 import pytest
 import asyncio
+import copy
 from typing import Dict
 from asgi_lifespan import LifespanManager
 from fastapi import FastAPI
@@ -133,7 +134,7 @@ def patch_datetime_now(monkeypatch):
         fake_datetime = datetime.datetime(*args, **kwargs)
 
         def mock_now():
-            return fake_datetime
+            return copy.deepcopy(fake_datetime)
 
         monkeypatch.setattr(datetime.datetime, 'now', mock_now)
         monkeypatch.setattr(datetime.datetime, 'today', mock_now)
