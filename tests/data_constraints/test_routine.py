@@ -7,6 +7,7 @@ from hitarget.models.routine import Routine,\
     Checkpoint,\
     CheckpointInRequest
 from hitarget.business import routine
+from hitarget.core.errors import EntityDoesNotExist
 
 pytestmark = [
     pytest.mark.asyncio
@@ -216,3 +217,10 @@ async def test_update_checkpoint_from_pausing(
     assert cp.percentage == 0
     assert cp.is_running is True
     assert cp.last_update == datetime(*now)
+
+
+async def test_update_checkpoint_but_not_found_routine(mongodb, routine_in_db, user_object_id):
+    just_a_random_non_existing_id = '9f0ba822f9d7397b0c0c4771'
+    cp = CheckpointInRequest(routine_id=just_a_random_non_existing_id, is_running=True)
+    with pytest.raises(EntityDoesNotExist):
+        await routine.update_checkpoint(mongodb, cp, user_object_id)
