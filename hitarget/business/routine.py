@@ -75,10 +75,12 @@ async def update_checkpoint(
 
     routine = RoutineInDB(**routine)
     last = None
+    index = -1
     for i, x in enumerate(routine.repeat):
         assert isinstance(x, Checkpoint)
         if x.date == date.today():
             last = x
+            index = i
             break
     else:
         last = Checkpoint(
@@ -90,8 +92,11 @@ async def update_checkpoint(
         )
 
     last = calculate_gain(last, cp.is_running, routine.duration)
+    if index < 0:
+        routine.repeat.insert(0, last)
+    else:
+        routine.repeat[index] = last
 
-    routine.repeat.insert(0, last)
     result = await db[RoutineInDB.__collection__].update_one(
         {"_id": routine.id},
         {"$set": {"repeat": routine.to_mongo()['repeat']}}

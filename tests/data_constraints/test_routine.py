@@ -127,7 +127,6 @@ async def test_create_checkpoint_first_time(
     assert cp.last_update == datetime(*now)
 
 
-@pytest.mark.skip(msg="pending to reshape Checkpoint's functionality")
 async def test_create_checkpoint_second_time(
     patch_datetime_now,
     patch_today,
