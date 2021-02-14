@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict
 from bson import ObjectId
 from datetime import datetime, date
 
@@ -37,7 +37,7 @@ class MongoDateObject():
         field_schema.update(type='string')
 
 
-def jsonify_fields(fields: List[str]):
+def jsonify_fields(fields: List[str], combined_with: Dict = {}):
     common = {}
     if "ObjectId" in fields:
         common[ObjectId] = lambda v: str(v)
@@ -45,4 +45,5 @@ def jsonify_fields(fields: List[str]):
         common[date] = lambda v: v.strftime("%Y-%m-%d")
     if "datetime" in fields:
         common[datetime] = lambda v: v.strftime("%Y-%m-%d %H:%M:%S")
+    common.update(combined_with)
     return common

@@ -12,7 +12,7 @@ pytestmark = [
 ]
 
 
-async def test_create_routine(authorized_client, routine_sample):
+async def test_create_routine(authorized_client, reset_routines, routine_sample):
     response = await  authorized_client.post(f"{settings.API_V1_PREFIX}/routine",
                                             json=jsonable_encoder(routine_sample))
     assert response.status_code == HTTP_200_OK

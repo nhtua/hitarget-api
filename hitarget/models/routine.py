@@ -86,7 +86,7 @@ class RoutineInResponse(Routine):
     repeat: List[Checkpoint] = []
 
     class Config:
-        json_encoders = jsonify_fields(['ObjectId', 'date', 'datetime']).update({
+        json_encoders = jsonify_fields(['ObjectId', 'date', 'datetime'], {
             Checkpoint: lambda x: x.to_mongo()
         })
 
