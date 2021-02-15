@@ -1,5 +1,6 @@
 import pytest
 import asyncio
+import copy
 from typing import Dict
 from asgi_lifespan import LifespanManager
 from fastapi import FastAPI
@@ -12,6 +13,8 @@ from hitarget.core import security
 from hitarget.models.user import UserInDB, UserInResponse
 from hitarget.models.routine import Routine
 from hitarget.services.jwt import create_access_token_for_user
+
+from tests.fixtures.routine import *
 
 
 # This workaround works
@@ -122,3 +125,30 @@ def authorized_client(
         **client.headers,
     }
     return client
+
+
+@pytest.fixture
+def patch_datetime_now(monkeypatch):
+    def wrapper(*args, **kwargs):
+        import datetime
+        fake_datetime = datetime.datetime(*args, **kwargs)
+
+        def mock_now():
+            return copy.deepcopy(fake_datetime)
+
+        monkeypatch.setattr(datetime.datetime, 'now', mock_now)
+        monkeypatch.setattr(datetime.datetime, 'today', mock_now)
+    return wrapper
+
+
+@pytest.fixture
+def patch_today(monkeypatch):
+    def wrapper(*args, **kwargs):
+        import datetime
+        fake_date = datetime.date(*args, **kwargs)
+
+        def mock_today():
+            return fake_date
+
+        monkeypatch.setattr(datetime.date, 'today', mock_today)
+    return wrapper

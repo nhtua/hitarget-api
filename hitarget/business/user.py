@@ -1,15 +1,24 @@
 from hitarget.core import security
-from hitarget.core.errors import EntityDoesNotExist
+from hitarget.core.errors import EntityDoesNotExist, DuplicatedIdentityKey
 from hitarget.core.mongodb import AsyncIOMotorDatabase
 from hitarget.models.helper import PyObjectId
 from hitarget.models.user import User, UserInDB, FormRegister
+from hitarget.resources import strings
 
 
 async def create_user(db: AsyncIOMotorDatabase, form: FormRegister):
+    try:
+        existingUser = await find_user_by(db, email=form.email.strip())
+    except EntityDoesNotExist:
+        existingUser = None
+
+    if existingUser is not None:
+        raise DuplicatedIdentityKey(strings.EMAIL_TAKEN)
+
     user = UserInDB(**form.dict())
     user.salt = security.generate_salt()
     user.password = security.get_password_hash(user.salt + user.password)
-    result = await db[user.__collection__].insert_one(user.dict())
+    result = await db[user.__collection__].insert_one(user.to_mongo())
     user.id = PyObjectId(str(result.inserted_id))
     return user
 

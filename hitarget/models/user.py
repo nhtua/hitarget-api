@@ -10,6 +10,11 @@ class User(BaseModel):
     email: str
     name: Optional[str]
 
+    def to_mongo(self):
+        data = self.dict()
+        data.pop('id', None)
+        return data
+
 
 class UserInResponse(User):
     id: Optional[PyObjectId]
