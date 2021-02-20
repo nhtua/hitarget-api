@@ -20,7 +20,9 @@ async def connect():
     logging.info('Connecting to MongoDB')
     dbe.client = AsyncIOMotorClient(settings.MONGODB_URL,
                                    maxPoolSize=settings.MONGODB_MAX_POOL_SIZE,
-                                   minPoolSize=settings.MONGODB_MIN_POOL_SIZE)
+                                   minPoolSize=settings.MONGODB_MIN_POOL_SIZE,
+                                   tls=settings.MONGODB_TLS,
+                                   tlsAllowInvalidCertificates=settings.MONGODB_BYPASS_TLS)
     logging.info('MongoDB Connected!')
     return dbe.client
 

@@ -12,6 +12,8 @@ class Settings(BaseSettings):
     MONGODB_NAME: str = "hitarget-test"
     MONGODB_MAX_POOL_SIZE = 10
     MONGODB_MIN_POOL_SIZE = 1
+    MONGODB_TLS = False
+    MONGODB_BYPASS_TLS = True  # tlsAllowInvalidCertificates=True
 
     JWT_ISSUER: str = "hiTargetV1"
     JWT_ALGORITHM: str = "HS256"
