@@ -1,6 +1,11 @@
 ## Hello my targets! - HiTarget
 
-HiTarget API is writen in Python (Pypy) and FastAPI. It works as backend for HiTarget ToDo list.
+HiTarget API is writen in Python (Pypy) and FastAPI. It works as backend for HiTarget ToDo list. `hitarget` was designed with 3 main components: 
+
+- [hitarget-api](https://github.com/nhtua/hitarget-api): the backend api is written in Python 3.6 using FastAPI, which processes all logic of this TODO list app
+- [hitarget-ui](https://github.com/nhtua/hitarget-ui): the frontent UI is written in Javascript using VueJs 3.x
+- [hitarget-it](https://github.com/nhtua/hitarget-it): the configuration and deployment management scripts using Ansible Playbook
+
 
 ### Prequisite
 
